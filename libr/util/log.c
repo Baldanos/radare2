@@ -72,6 +72,11 @@ R_API void r_log_show_origin(bool show_origin) {
 	rlog->show_origin = show_origin;
 }
 
+R_API void r_log_show_source(bool show_source) {
+	r_log_init ();
+	rlog->show_source = show_source;
+}
+
 R_API void r_log_set_colors(bool color) {
 	r_log_init ();
 	rlog->color = color;
@@ -101,7 +106,7 @@ R_API bool r_log_match(int level, const char *origin) { // , const char *sub_ori
 	return level < rlog->level;
 }
 
-R_API void r_log_vmessage(RLogLevel level, const char *origin, const char *fmt, va_list ap) {
+R_API void r_log_vmessage(RLogLevel level, const char *origin, const char *func, int line, const char *fmt, va_list ap) {
 	char out[512];
 	r_log_init ();
 	int type = 3;
@@ -169,10 +174,10 @@ R_API void r_log_vmessage(RLogLevel level, const char *origin, const char *fmt, 
 	}
 }
 
-R_API void r_log_message(RLogLevel level, const char *origin, const char *fmt, ...) {
+R_API void r_log_message(RLogLevel level, const char *origin, const char *func, int line, const char *fmt, ...) {
 	va_list ap;
 	va_start (ap, fmt);
-	r_log_vmessage (level, origin, fmt, ap);
+	r_log_vmessage (level, origin, func, line, fmt, ap);
 	va_end (ap);
 }
 
@@ -194,6 +199,6 @@ R_API void r_log_del_callback(RLogCallback cb) {
 R_API void r_log(const char *funcname, const char *filename, ut32 lineno, RLogLevel level, const char *origin, const char *fmtstr, ...) {
 	va_list args;
 	va_start (args, fmtstr);
-	r_log_vmessage (level, origin, fmtstr, args);
+	r_log_vmessage (level, origin? origin: filename, funcname, lineno, fmtstr, args);
 	va_end (args);
 }
